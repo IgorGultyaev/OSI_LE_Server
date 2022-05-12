@@ -7,19 +7,45 @@ import java.net.Socket;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-        int port = 8089;
-        ServerSocket serverSocket = new ServerSocket(port); // порт можете выбрать любой в доступном диапазоне 0-65536.
-        // Но чтобы не нарваться на уже занятый - рекомендуем использовать около 8080
+    static String clientRequest(String request, ServerSocket serverSocket, boolean needRequest) throws IOException {
+
         Socket clientSocket = serverSocket.accept(); // ждем подключения
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
+        out.println(request);
 
-        System.out.println("New connection accepted");
+        if (needRequest) {
+            return in.readLine();
+        } else return "";
+    }
 
-        final String name = in.readLine();
+    public static void main(String[] args) throws IOException {
 
-        out.println(String.format("Hi %s, your port is %d", name, clientSocket.getPort()));
+        int port = 8089;
+        String massage = "Write your name";
+        String request = "start";
+        String name = "noname";
+        Boolean child;
+
+        ServerSocket serverSocket = new ServerSocket(port);
+        while (!request.equals("end#")) {
+
+            request = clientRequest(massage, serverSocket, true);
+
+            if (massage.equals("Write your name")) {
+                name = request;
+                massage = "Are you child? (yes/no)";
+            } else if (request.equals("yes")) {
+                clientRequest("Welcome to the kids area, " + name + " Let's play!", serverSocket, false);
+                massage = "Write your name";
+            } else {
+                clientRequest("Welcome to the adult zone, " +
+                                name + " Have a good rest, or a good working day!",
+                        serverSocket, false);
+                massage = "Write your name";
+            }
+        }
+        System.out.println("the server is stopped");
     }
 }
