@@ -29,7 +29,6 @@ public class Client {
                     out.println(massage);
                 }
 
-
             } catch (IOException e) {
 //
                 System.out.println("Сервер не отвечает");
